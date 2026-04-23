@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitación Mauricio y Patricio</title>
+    <!-- Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'invitacion-gemelos-4';
+        const ADMIN_PASSWORD = "2024";
+
+        let currentUser = null;
+        let allRsvps = [];
+
+        // ENLACES
+        const invitationImg = "https://lh3.googleusercontent.com/d/10E6UrSQ8af4brarRvSKM4WsipF5ISmJs";
+        const liverpoolImg = "https://lh3.googleusercontent.com/d/19VwAx928FJc9VbecPwHuF4-hCrcEn62E";
+
+        // Función para cambiar de vista
+        window.switchView = (viewId) => {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+            window.scrollTo(0, 0);
+        };
+
+        // Inicializar Autenticación
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                signInAnonymously(auth);
+            } else {
+                currentUser = user;
+            }
+        });
+
+        // Manejar el envío del RSVP
+        document.getElementById('rsvp-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.innerText = 'Enviando...';
+
+            const data = {
+                name: document.getElementById('name').value,
+                guests: parseInt(document.getElementById('guests').value),
+                message: document.getElementById('message').value,
+                timestamp: new Date().toISOString(),
+                uid: currentUser?.uid || 'anon'
+            };
+
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'rsvps'), data);
+                document.getElementById('rsvp-form').classList.add('hidden');
+                document.getElementById('success-msg').classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                alert('Hubo un error al guardar. Inténtalo de nuevo.');
+            }
+            btn.disabled = false;
+        });
+
+        // Manejar Login Admin
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const pass = document.getElementById('admin-pass').value;
+            if (pass === ADMIN_PASSWORD) {
+                loadAdminData();
+                switchView('view-admin-panel');
+            } else {
+                const input = document.getElementById('admin-pass');
+                input.classList.add('border-red-500', 'bg-red-50');
+                setTimeout(() => input.classList.remove('border-red-500', 'bg-red-50'), 2000);
+            }
+        });
+
+        // Cargar datos de la tabla
+        function loadAdminData() {
+            const q = collection(db, 'artifacts', appId, 'public', 'data', 'rsvps');
+            onSnapshot(q, (snapshot) => {
+                allRsvps = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                const tbody = document.getElementById('admin-table-body');
+                const totalText = document.getElementById('total-pax');
+                
+                let total = 0;
+                tbody.innerHTML = '';
+                
+                allRsvps.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(r => {
+                    total += (r.guests || 0);
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
+                            <td class="p-4 font-bold text-white">${r.name}</td>
+                            <td class="p-4 text-center"><span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold">${r.guests}</span></td>
+                            <td class="p-4 text-xs text-slate-400 italic">${r.message || '-'}</td>
+                        </tr>
+                    `;
+                });
+                totalText.innerText = `Total: ${total} personas confirmadas`;
+            });
+        }
+
+        // Descargar CSV
+        window.downloadCSV = () => {
+            const headers = ["Nombre", "Invitados", "Mensaje", "Fecha"];
+            const rows = allRsvps.map(r => [`"${r.name}"`, r.guests, `"${r.message || ''}"`, new Date(r.timestamp).toLocaleString()]);
+            const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "asistencia_fiesta_gemelos.csv";
+            link.click();
+        };
+
+        // Inicializar iconos
+        lucide.createIcons();
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+        body { font-family: 'Montserrat', sans-serif; }
+        .modal::backdrop { backdrop-filter: blur(8px); background: rgba(15, 23, 42, 0.85); }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #0ea5e9; cursor: pointer; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- VISTA 1: INVITACIÓN -->
+    <div id="view-invitation" class="view min-h-screen max-w-md mx-auto bg-white shadow-2xl relative flex flex-col">
+        <!-- Imagen Header -->
+        <div class="relative w-full aspect-[3/4] bg-slate-100 flex items-center justify-center overflow-hidden">
+            <img src="https://lh3.googleusercontent.com/d/10E6UrSQ8af4brarRvSKM4WsipF5ISmJs" alt="Invitación" class="w-full h-full object-cover">
+        </div>
+
+        <div class="p-8 space-y-8">
+            <!-- Botón Mapa -->
+            <a href="https://maps.app.goo.gl/qnFvsAfZ5H8LMNi96?g_st=aw" target="_blank" class="flex items-center gap-5 bg-sky-50 p-5 rounded-[2rem] border border-sky-100 group transition-all">
+                <div class="bg-sky-500 text-white p-4 rounded-2xl shadow-lg shadow-sky-100 group-hover:scale-110 transition-transform">
+                    <i data-lucide="map-pin"></i>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1">¿Dónde será?</p>
+                    <h3 class="font-bold text-slate-800 text-lg">Hashiko Bahías</h3>
+                    <p class="text-xs text-sky-700">Toca para ver mapa</p>
+                </div>
+            </a>
+
+            <!-- Regalos -->
+            <div class="space-y-4">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Mesa de Regalos</h3>
+                <div class="grid grid-cols-1 gap-3">
+                    <a href="https://www.amazon.com.mx/hz/wishlist/ls/22D11D6835BI8?ref_=wl_share" target="_blank" class="flex items-center justify-between bg-white border border-slate-100 p-5 rounded-[1.5rem] hover:shadow-md transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-amber-100 p-2 rounded-lg text-amber-600"><i data-lucide="gift" size="20"></i></div>
+                            <span class="font-bold text-slate-700">Amazon Wishlist</span>
+                        </div>
+                        <i data-lucide="chevron-right" class="text-slate-300"></i>
+                    </a>
+                    <button onclick="document.getElementById('modal-liverpool').showModal()" class="flex items-center justify-between bg-white border border-slate-100 p-5 rounded-[1.5rem] hover:shadow-md transition-all w-full text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-pink-100 px-3 py-2 rounded-lg text-pink-600 font-black text-xs">L</div>
+                            <span class="font-bold text-slate-700">Tarjeta Liverpool</span>
+                        </div>
+                        <i data-lucide="chevron-right" class="text-slate-300"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- RSVP -->
+            <div class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-inner">
+                <form id="rsvp-form" class="space-y-6">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-black text-slate-800 uppercase tracking-tight">¿Vienes a la fiesta?</h2>
+                        <p class="text-slate-500 text-sm mt-1">Por favor confirma tu lugar</p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block ml-1">Tu Nombre</label>
+                        <input required id="name" type="text" class="w-full px-5 py-4 rounded-2xl border-none shadow-sm focus:ring-4 focus:ring-sky-100 transition-all text-slate-700 font-medium" placeholder="Familia García">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block ml-1">Número de personas</label>
+                        <div class="flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm">
+                            <input id="guests" type="range" min="1" max="10" value="1" oninput="this.nextElementSibling.innerText = this.value" class="flex-1 accent-sky-500">
+                            <span class="bg-sky-500 text-white w-12 h-12 flex items-center justify-center rounded-xl font-black text-xl">1</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block ml-1">Mensaje (Opcional)</label>
+                        <textarea id="message" rows="2" class="w-full px-5 py-3 rounded-2xl border-none shadow-sm focus:ring-4 focus:ring-sky-100 transition-all text-slate-700 text-sm" placeholder="¡Felicidades!"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-sky-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-sky-700 transition-all shadow-xl shadow-sky-200 uppercase tracking-widest">
+                        ¡CONFIRMAR!
+                    </button>
+                </form>
+
+                <div id="success-msg" class="hidden text-center py-10 space-y-6">
+                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto border-4 border-emerald-50">
+                        <i data-lucide="check-circle" size="40"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-800 uppercase">¡RECIBIDO!</h2>
+                    <p class="text-slate-500">Tu confirmación ha sido guardada. ¡Nos vemos pronto!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-auto p-10 text-center space-y-6">
+            <button onclick="switchView('view-admin-login')" class="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] hover:text-slate-500 flex items-center justify-center gap-2 mx-auto">
+                <i data-lucide="lock" size="10"></i> Acceso Papás
+            </button>
+        </div>
+    </div>
+
+    <!-- VISTA 2: LOGIN ADMIN -->
+    <div id="view-admin-login" class="view hidden min-h-screen flex items-center justify-center p-6 bg-slate-50">
+        <div class="max-w-sm w-full bg-white p-10 rounded-[2.5rem] shadow-2xl text-center border border-slate-100">
+            <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
+                <i data-lucide="lock" size="40"></i>
+            </div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">Panel Privado</h2>
+            <p class="text-slate-500 mb-8 text-sm">Ingresa la clave maestra.</p>
+            <form id="login-form" class="space-y-4">
+                <input id="admin-pass" type="password" placeholder="Clave" class="w-full px-4 py-4 rounded-2xl border-2 text-center text-xl font-bold tracking-[0.5em] outline-none transition-all border-slate-100 focus:border-sky-500">
+                <button class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all">ACCEDER</button>
+                <button type="button" onclick="switchView('view-invitation')" class="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-4">Regresar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- VISTA 3: PANEL ADMIN -->
+    <div id="view-admin-panel" class="view hidden min-h-screen bg-slate-900 text-slate-300 p-6">
+        <div class="max-w-4xl mx-auto">
+            <button onclick="switchView('view-invitation')" class="flex items-center gap-2 mb-8 text-slate-500 hover:text-white transition-colors">
+                <i data-lucide="arrow-left" size="18"></i> Salir del Panel
+            </button>
+
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                <div>
+                    <h1 class="text-3xl font-black text-white flex items-center gap-3 italic">
+                        <i data-lucide="user-check" class="text-emerald-400"></i> ASISTENCIA
+                    </h1>
+                    <p id="total-pax" class="text-slate-500 font-bold">Cargando...</p>
+                </div>
+                <button onclick="downloadCSV()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20">
+                    <i data-lucide="download" size="20"></i> DESCARGAR EXCEL
+                </button>
+            </div>
+
+            <div class="bg-slate-800/50 rounded-3xl overflow-hidden border border-slate-700 shadow-2xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-800">
+                            <tr>
+                                <th class="p-5 text-[10px] font-black uppercase tracking-widest">Nombre</th>
+                                <th class="p-5 text-[10px] font-black uppercase tracking-widest text-center">Pax</th>
+                                <th class="p-5 text-[10px] font-black uppercase tracking-widest">Mensaje</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body">
+                            <!-- JS cargará los datos aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Liverpool -->
+    <dialog id="modal-liverpool" class="modal p-0 rounded-[2.5rem] shadow-2xl overflow-hidden outline-none">
+        <div class="p-10 max-w-sm bg-white text-center">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="font-black text-xl text-slate-800 uppercase tracking-tight">Regalo Liverpool</h3>
+                <button onclick="this.closest('dialog').close()" class="text-slate-300 hover:text-slate-500 transition-colors">
+                    <i data-lucide="x" size="24"></i>
+                </button>
+            </div>
+            <div class="bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200 mb-8 flex items-center justify-center min-h-[200px]">
+                <img src="https://lh3.googleusercontent.com/d/19VwAx928FJc9VbecPwHuF4-hCrcEn62E" alt="Liverpool" class="w-full h-auto rounded-xl">
+            </div>
+            <p class="text-sm text-slate-600 leading-relaxed mb-8">Escanea este código en caja para abonar a la mesa de regalos de los gemelos.</p>
+            <button onclick="this.closest('dialog').close()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all">CERRAR</button>
+        </div>
+    </dialog>
+
+</body>
+</html>
