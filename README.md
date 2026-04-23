@@ -8,7 +8,7 @@ Confirmación RSVP: Formulario integrado que guarda la asistencia directamente e
 Mesa de Regalos: Enlaces directos a Amazon Wishlist y modal interactivo para el código de barras de Liverpool.
 Ubicación: Integración con Google Maps para llegar a "Hashiko Bahías".
 Panel de Administración Privado:
-Protegido por contraseña (2024).
+Protegido por contraseña.
 Visualización de invitados en tiempo real.
 Contador automático de personas confirmadas.
 Descarga de la lista completa en formato CSV (Excel).
