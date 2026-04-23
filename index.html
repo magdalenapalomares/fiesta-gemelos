@@ -18,45 +18,37 @@
 </head>
 <body class="bg-slate-50">
 
-    <!-- Script de Navegación Inmediata -->
+    <!-- Script de Navegación -->
     <script>
-        // Función global para cambiar de vista (necesaria para los botones onclick)
         window.switchView = function(viewId) {
-            console.log("Cambiando a vista:", viewId);
             const views = document.querySelectorAll('.view');
             views.forEach(v => v.classList.add('hidden'));
-            
             const targetView = document.getElementById(viewId);
             if (targetView) {
                 targetView.classList.remove('hidden');
                 window.scrollTo(0, 0);
-            } else {
-                console.error("No se encontró la vista:", viewId);
             }
         };
     </script>
 
     <!-- VISTA 1: INVITACIÓN -->
     <div id="view-invitation" class="view min-h-screen max-w-md mx-auto bg-white shadow-2xl relative flex flex-col">
-        <!-- Imagen Header -->
         <div class="relative w-full aspect-[3/4] bg-slate-100 flex items-center justify-center overflow-hidden">
             <img src="https://lh3.googleusercontent.com/d/10E6UrSQ8af4brarRvSKM4WsipF5ISmJs" alt="Invitación" class="w-full h-full object-cover">
         </div>
 
         <div class="p-8 space-y-8">
-            <!-- Botón Mapa -->
             <a href="https://maps.app.goo.gl/qnFvsAfZ5H8LMNi96?g_st=aw" target="_blank" class="flex items-center gap-5 bg-sky-50 p-5 rounded-[2rem] border border-sky-100 group transition-all">
                 <div class="bg-sky-500 text-white p-4 rounded-2xl shadow-lg shadow-sky-100 group-hover:scale-110 transition-transform">
                     <i data-lucide="map-pin"></i>
                 </div>
-                <div>
+                <div class="text-left">
                     <p class="text-[10px] font-black text-sky-600 uppercase tracking-widest mb-1">¿Dónde será?</p>
                     <h3 class="font-bold text-slate-800 text-lg text-left">Hashiko Bahías</h3>
                     <p class="text-xs text-sky-700 text-left">Toca para ver mapa</p>
                 </div>
             </a>
 
-            <!-- Regalos -->
             <div class="space-y-4">
                 <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 text-left">Mesa de Regalos</h3>
                 <div class="grid grid-cols-1 gap-3">
@@ -68,7 +60,7 @@
                         <i data-lucide="chevron-right" class="text-slate-300"></i>
                     </a>
                     <button onclick="document.getElementById('modal-liverpool').showModal()" class="flex items-center justify-between bg-white border border-slate-100 p-5 rounded-[1.5rem] hover:shadow-md transition-all w-full text-left">
-                        <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-4 text-left">
                             <div class="bg-pink-100 px-3 py-2 rounded-lg text-pink-600 font-black text-xs">L</div>
                             <span class="font-bold text-slate-700">Tarjeta Liverpool</span>
                         </div>
@@ -77,7 +69,6 @@
                 </div>
             </div>
 
-            <!-- RSVP -->
             <div class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-inner">
                 <form id="rsvp-form" class="space-y-6">
                     <div class="text-center">
@@ -127,12 +118,11 @@
             <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
                 <i data-lucide="lock" size="40"></i>
             </div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">Panel Privado</h2>
-            <p class="text-slate-500 mb-8 text-sm">Ingresa la clave maestra.</p>
+            <h2 class="text-2xl font-black text-slate-800 mb-2 text-center">Panel Privado</h2>
             <form id="login-form" class="space-y-4">
-                <input id="admin-pass" type="password" placeholder="Clave" class="w-full px-4 py-4 rounded-2xl border-2 text-center text-xl font-bold tracking-[0.5em] outline-none transition-all border-slate-100 focus:border-sky-500">
-                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all">ACCEDER</button>
-                <button type="button" onclick="window.switchView('view-invitation')" class="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-4">Regresar</button>
+                <input id="admin-pass" type="password" placeholder="Clave" class="w-full px-4 py-4 rounded-2xl border-2 text-center text-xl font-bold tracking-[0.5em] outline-none border-slate-100 focus:border-sky-500">
+                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all text-center">ACCEDER</button>
+                <button type="button" onclick="window.switchView('view-invitation')" class="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-4 mx-auto block">Regresar</button>
             </form>
         </div>
     </div>
@@ -141,7 +131,7 @@
     <div id="view-admin-panel" class="view hidden min-h-screen bg-slate-900 text-slate-300 p-6">
         <div class="max-w-4xl mx-auto">
             <button type="button" onclick="window.switchView('view-invitation')" class="flex items-center gap-2 mb-8 text-slate-500 hover:text-white transition-colors">
-                <i data-lucide="arrow-left" size="18"></i> Salir del Panel
+                <i data-lucide="arrow-left" size="18"></i> Salir
             </button>
 
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
@@ -149,18 +139,10 @@
                     <h1 class="text-3xl font-black text-white flex items-center gap-3 italic">
                         <i data-lucide="user-check" class="text-emerald-400"></i> ASISTENCIA
                     </h1>
-                    <p id="total-pax" class="text-slate-500 font-bold italic">Total: 0 personas confirmadas</p>
+                    <p id="total-pax" class="text-slate-500 font-bold italic">Cargando datos...</p>
                 </div>
-                <button onclick="window.downloadCSV()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20">
-{
-  apiKey: "AIzaSyBmjhorvZHWJAKYy1ZXx2Q0yctvhrZWltE",
-  authDomain: "fiesta-gemelos.firebaseapp.com",
-  projectId: "fiesta-gemelos",
-  storageBucket: "fiesta-gemelos.firebasestorage.app",
-  messagingSenderId: "876087764892",
-  appId: "1:876087764892:web:170f174d86106790170a59",
-  measurementId: "G-QKLQ90TYQJ"
-};              <i data-lucide="download" size="20"></i> DESCARGAR EXCEL
+                <button onclick="window.downloadCSV()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+                    <i data-lucide="download" size="20"></i> DESCARGAR EXCEL
                 </button>
             </div>
 
@@ -187,7 +169,7 @@
     <dialog id="modal-liverpool" class="modal p-0 rounded-[2.5rem] shadow-2xl overflow-hidden outline-none">
         <div class="p-10 max-w-sm bg-white text-center">
             <div class="flex justify-between items-center mb-8">
-                <h3 class="font-black text-xl text-slate-800 uppercase tracking-tight">Regalo Liverpool</h3>
+                <h3 class="font-black text-xl text-slate-800 uppercase tracking-tight text-left">Tarjeta Liverpool</h3>
                 <button onclick="this.closest('dialog').close()" class="text-slate-300 hover:text-slate-500 transition-colors">
                     <i data-lucide="x" size="24"></i>
                 </button>
@@ -200,40 +182,59 @@
         </div>
     </dialog>
 
-    <!-- Firebase Script (type="module") -->
+    <!-- Firebase Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Capturar errores de configuración
-        let db, auth, appId;
+        // CONFIGURACIÓN DE FIREBASE
+        const myManualConfig = {
+            apiKey: "AIzaSyBmjhorvZHWJAKYy1ZXx2Q0yctvhrZWltE",
+            authDomain: "fiesta-gemelos.firebaseapp.com",
+            projectId: "fiesta-gemelos",
+            storageBucket: "fiesta-gemelos.firebasestorage.app",
+            messagingSenderId: "876087764892",
+            appId: "1:876087764892:web:170f174d86106790170a59",
+            measurementId: "G-QKLQ90TYQJ"
+        };
+
+        let db, auth, currentAppId;
         const ADMIN_PASSWORD = "2024";
-        let currentUser = null;
         let allRsvps = [];
 
-        try {
-            const config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-            if (config) {
-                const app = initializeApp(config);
+        async function startFirebase() {
+            try {
+                const app = initializeApp(myManualConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
-                appId = typeof __app_id !== 'undefined' ? __app_id : 'invitacion-gemelos-4';
-                
-                onAuthStateChanged(auth, (user) => {
-                    if (!user) signInAnonymously(auth);
-                    else currentUser = user;
-                });
+                currentAppId = 'fiesta-gemelos-asistencia';
+
+                // Solo intenta autenticar si el servicio auth está listo
+                if (auth) {
+                    onAuthStateChanged(auth, (user) => {
+                        if (!user) {
+                            signInAnonymously(auth).catch(err => {
+                                console.warn("Asegúrate de habilitar 'Anonymous Sign-in' en la consola de Firebase.");
+                                console.error("Error Auth:", err.message);
+                            });
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Error al conectar Firebase:", e);
+                alert("Hubo un problema de configuración con la base de datos.");
             }
-        } catch (e) {
-            console.warn("Firebase no configurado correctamente. El modo local está activo.");
         }
 
-        // Manejar el envío del RSVP
+        // Ejecutar inicio
+        startFirebase();
+
+        // Enviar RSVP
         document.getElementById('rsvp-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!db) {
-                alert("La base de datos no está conectada. Revisa la configuración de Firebase.");
+                alert("La base de datos no está lista. Por favor, intenta de nuevo en unos segundos.");
                 return;
             }
             
@@ -245,24 +246,23 @@
                 name: document.getElementById('name').value,
                 guests: parseInt(document.getElementById('guests').value),
                 message: document.getElementById('message').value,
-                timestamp: new Date().toISOString(),
-                uid: currentUser?.uid || 'anon'
+                timestamp: new Date().toISOString()
             };
 
             try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'rsvps'), data);
+                await addDoc(collection(db, 'artifacts', currentAppId, 'public', 'data', 'rsvps'), data);
                 document.getElementById('rsvp-form').classList.add('hidden');
                 document.getElementById('success-msg').classList.remove('hidden');
             } catch (err) {
-                console.error(err);
-                alert('Error al guardar. Asegúrate de haber configurado las Reglas en Firebase.');
+                console.error("Error al guardar:", err);
+                alert('Error al enviar. Asegúrate de que las reglas de Firebase permitan escritura.');
             } finally {
                 btn.disabled = false;
                 btn.innerText = '¡CONFIRMAR!';
             }
         });
 
-        // Manejar Login Admin
+        // Login Admin
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const pass = document.getElementById('admin-pass').value;
@@ -277,7 +277,7 @@
         });
 
         function loadAdminData() {
-            const q = collection(db, 'artifacts', appId, 'public', 'data', 'rsvps');
+            const q = collection(db, 'artifacts', currentAppId, 'public', 'data', 'rsvps');
             onSnapshot(q, (snapshot) => {
                 allRsvps = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 const tbody = document.getElementById('admin-table-body');
@@ -289,14 +289,17 @@
                 allRsvps.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(r => {
                     total += (r.guests || 0);
                     tbody.innerHTML += `
-                        <tr class="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
-                            <td class="p-5 font-bold text-white">${r.name}</td>
+                        <tr class="border-b border-slate-700 hover:bg-slate-800/50">
+                            <td class="p-5 font-bold text-white text-left">${r.name}</td>
                             <td class="p-5 text-center"><span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold">${r.guests}</span></td>
-                            <td class="p-5 text-xs text-slate-400 italic">${r.message || '-'}</td>
+                            <td class="p-5 text-xs text-slate-400 italic text-left">${r.message || '-'}</td>
                         </tr>
                     `;
                 });
                 totalText.innerText = `Total: ${total} personas confirmadas`;
+            }, (err) => {
+                console.error("Error al leer datos:", err);
+                alert("Error al cargar la lista. Verifica las reglas de Firestore.");
             });
         }
 
@@ -305,17 +308,15 @@
             const headers = ["Nombre", "Invitados", "Mensaje", "Fecha"];
             const rows = allRsvps.map(r => [`"${r.name}"`, r.guests, `"${r.message || ''}"`, new Date(r.timestamp).toLocaleString()]);
             const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = "asistencia_gemelos.csv";
+            link.download = "lista_asistencia_gemelos.csv";
             link.click();
         };
 
-        // Crear iconos al final
         lucide.createIcons();
     </script>
-
 </body>
 </html>
